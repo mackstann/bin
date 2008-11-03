@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# like the sort(1) command, but sorts in a random order.  no attempt made at
+# high performance.
+
+import sys, random
+
+try:
+    lines = sys.stdin.readlines()
+
+    while lines:
+        sys.stdout.write(lines.pop(random.randint(0, len(lines)-1)))
+except IOError:
+    pass
+

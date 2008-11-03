@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+Mount 'usb-Motorola*Phone*part1' /media/phone 0000
+

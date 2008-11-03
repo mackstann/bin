@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# Install: streamlines a simple apt-cache search; sudo apt-get install
+# sequence.  pass search term(s) as arguments and select packages from a list
+# of matches presented.
+
+import os, sys, pipes
+
+searchterms = sys.argv[1:]
+
+lines = os.popen('apt-cache search --names-only %s' % ' '.join(searchterms)).readlines()
+for i, line in enumerate(lines):
+    print "[%d] %s" % (i+1, line.rstrip())
+
+print '>',
+
+which = raw_input()
+
+words = which.replace(',', ' ').split()
+
+if 'a' in words or 'all' in words:
+    nums = range(1, len(lines)+1)
+else:
+    nums = map(int, which.replace(',', ' ').split())
+
+packages = [ lines[num - 1].split()[0] for num in nums ]
+
+os.system('sudo apt-get install %s' % ' '.join(packages))
+

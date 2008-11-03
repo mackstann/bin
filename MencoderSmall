@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+from="$1"
+to=`basename "$from" | perl -pe 'chomp; s/[^\w-\.]/_/g'`
+if ! echo "$to" | egrep -q '\.mpe?g$'
+then
+    to="$to".mpg
+fi
+if [ -f "$to" ]
+then
+    echo "file already exists: $to"
+    rm -i "$to"
+fi
+echo '********************************'
+echo
+echo "transcoding: $from"
+echo "         to: $to"
+echo "             (in current directory: "`pwd`")"
+echo
+echo '********************************'
+sleep 3
+if mencoder "$from" -o "$to".encoding... \
+    -oac mp3lame \
+    -lameopts abr:br=96 \
+    -af resample=44100,volnorm \
+    -srate 44100 \
+    -ofps 17 \
+    -ovc lavc \
+    -lavcopts threads=2:vcodec=mpeg4:mbd=2:cbp:trell:vbitrate=256 \
+    -vf scale=384:256 \
+    -ffourcc XVID
+then
+    mv "$to".encoding... "$to"
+    echo "done with $to"
+else
+    rm -f "$to".encoding...
+    exit 1
+fi
+

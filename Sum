@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# Sum: take white-space (including newline)-delimited numbers from stdin and
+# echo the sum.
+
+total=0
+while read line
+do
+    for num in $line
+    do
+        total=$(($total + $num))
+    done
+done
+echo $total
+

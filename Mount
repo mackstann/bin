@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# Mount: mounts a disk based on the name of the hardware instead of numbered
+# /dev files.  also waits for them to appear (i.e. if you just plugged it in
+# and the kernel hasn't finished recognizing it, it won't just reject you with
+# an error)
+
+glob="$1"
+mountpoint="$2"
+theumask="$3"
+optionarg=""
+
+if [ -z "$glob" -o -z "$mountpoint" ]
+then
+    echo "Usage: $0 <device id glob> <mount point> [optional umask]"
+    echo "Example: $0 'usb-Seagate*part1' /mnt/music 0000"
+    exit 1
+fi
+
+if [ -n "$theumask" ]
+then
+    theumask="umask=$theumask"
+    optionarg="-o"
+fi
+
+while true
+do
+    num_matching_disks=`find /dev/disk/by-id -iname "$glob" | wc -l`
+    case $num_matching_disks in
+        0)
+            printf "."
+            sleep 0.05
+            continue
+            ;;
+        1)
+            dev=`find /dev/disk/by-id -iname "$glob"`
+            echo "mounting $dev at $mountpoint"
+            sudo mount $optionarg $theumask "$dev" "$mountpoint"
+            exit 0
+            ;;
+        *)
+            echo there are multiple disks that match "$glob":
+            find /dev/disk/by-id -iname "$glob"
+            exit 1
+            ;;
+    esac
+done
+

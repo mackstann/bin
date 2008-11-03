@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# thing i cooked up to filter XRaiseWindow calls, to keep flash from raising my
+# windows when i don't want it to
+export LD_PRELOAD=$HOME/sw/lib/interceptor.so
+
+# drastically reduces sizes of internal firefox databases (history etc)
+set -x
+find $HOME/.mozilla/firefox -name '*.sqlite' -exec sqlite3 {} 'VACUUM;' \; 
+
+exec firefox-3.0
+

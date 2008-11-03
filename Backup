@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+MountSeagate
+
+mount | grep -q ' on /mnt type ' || exit 1
+
+sudo mkdir -p /mnt/sysbackup || exit 1
+
+DoItEasy rsync \
+    -zva \
+    --delete \
+    --delete-excluded \
+    --exclude '/mnt*' \
+    --exclude '/proc*' \
+    --exclude '/sys*' \
+    --exclude '/dev*' \
+    --exclude '/tmp*' \
+    / /mnt/sysbackup/
+

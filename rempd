@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# for controlling mpd (musicpd.org) and associated utilities
+
+kill_with_prejudice()
+{
+    name="$1"
+    for i in 1 2 3
+    do
+        sudo killall "$name" 2>/dev/null
+        if ! pidof "$name" >/dev/null
+        then
+            return 0
+        fi
+        sleep 0.1
+    done
+    sudo killall -9 "$name" 2>/dev/null
+    while pidof "$name" >/dev/null
+    do
+        sleep 0.05
+    done
+}
+
+stop()
+{
+    kill_with_prejudice mpd
+    kill_with_prejudice mpdscribble
+}
+
+start()
+{
+    mpdscribble &
+    mpd $HOME/.mpdconf
+    mpc update >/dev/null
+    while mpc | grep -q 'Updating DB'
+    do sleep 0.1
+    done
+    mpc random 1 >/dev/null
+    mpc repeat 1 >/dev/null
+    python $HOME/dev/mpd-weighted-playlist/mine.py >/dev/null
+    mpc play
+}
+
+restart() { stop; start; }
+
+if [ -n "$1" ]
+then
+    $1
+else
+    restart
+fi
+

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# TakeItEasy: re-prioritize existing process(es) to the lowest cpu and i/o
+# priorities.
+
+# see also: DoItEasy
+
+# pass in one or more arguments, each being either a numerical pid or the name
+# of a process
+
+is_numeric () { echo $1 | egrep -q '^[0-9]+$'; }
+
+for arg in $*
+do
+    if is_numeric "$arg"
+    then
+        pids=$arg
+    else
+        pids=`pidof $arg`
+    fi
+    for pid in $pids
+    do
+        sudo ionice -c3 -p $pid
+        sudo renice 20 -p $pid
+    done
+done
+

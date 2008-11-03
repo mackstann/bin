@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+if ! ls *.mp3 >/dev/null 2>&1
+then
+    echo "no mp3s here"
+    exit
+fi
+
+if ! \ls | grep -q burn-temp.cdr$
+then
+    \ls ./*.mp3 | while read i
+    do
+        mpg321 -w "$i.burn-temp.wav" "$i"
+
+        if sox -t wav "$i.burn-temp.wav" -r 44100 -t wav "$i.burn-temp2.wav" resample
+        then
+            mv "$i.burn-temp2.wav" "$i.burn-temp.wav"
+        else
+            rm -f "$i.burn-temp2.wav"
+        fi
+
+        if sox -t wav "$i.burn-temp.wav" -t cdr "$i.burn-temp.cdr"
+        then
+            rm "$i.burn-temp.wav"
+        fi
+    done
+fi
+
+printf "insert cd and press enter "
+read
+
+sudo cdrecord -v dev=/dev/cdrom driveropts=burnfree \
+              -pad -dao -audio *.burn-temp.cdr
+
+printf "hit enter to delete the .cdr files"
+read
+
+rm -f *.burn-temp.cdr
+

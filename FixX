@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# FixX: when an SDL or other video mode-changing app crashes, this attempts to
+# restore the display's normal mode.
+
+#xrandr -s 1920x1200
+xrandr --output 0 --preferred
+xrandr -x
+#xrandr -s 1920x1200
+xrandr --output 0 --preferred
+

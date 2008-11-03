@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# WaitFor: block until all process(es) matching the specified pids/names have
+# completed.  good for firefox, which can take a while to fully exit, even
+# after its windows have disappeared.
+
+# pass in one or more arguments, each being either a numerical pid or the name
+# of a process
+
+is_numeric () { echo $1 | egrep -q '^[0-9]+$'; }
+
+while true
+do
+    numalive=0
+    # can pass in pids and/or process names
+    for arg in $*
+    do
+        if is_numeric "$arg"
+        then
+            pids=$arg
+        else
+            pids=`pidof $arg`
+        fi
+        for pid in $pids
+        do
+            numalive=$(($numalive + `ps -p $pid | grep -v '^ ' | wc -l`))
+        done
+    done
+    if [ $numalive = 0 ]
+    then
+        exit
+    fi
+    sleep 0.1
+done

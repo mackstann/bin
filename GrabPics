@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+mkdir -p /tmp/grabpics &&
+cd /tmp/grabpics && \
+sudo rm -f * && \
+sudo gphoto2 --filename '%:' -P && \
+sudo gphoto2 --delete-all-files --folder /store_00010001/DCIM/100CANON && \
+sudo chown death:death img_*.jpg && \
+chmod 600 img_*.jpg
+
+die () { echo "$1"; exit 1; }
+sorted_jpegs_in_dir () { find "$1" -mindepth 1 -maxdepth 1 -iname '*.jpg' | sort -n; }
+sorted_new_files () { sorted_jpegs_in_dir .; }
+first_new_file () { sorted_new_files | head -n1; }
+
+lastnum=`basename $(sorted_jpegs_in_dir ~/pics | tail -n1) .jpg | sed -e 's/^0*//'`
+newcount=`sorted_new_files | wc -l`
+
+test "$newcount" -gt 0 -a "$newcount" -lt 100000 || die "weird number ($newcount) of new files"
+test "$lastnum" -gt 0 -a "$lastnum" -lt 100000 || die "weird number ($lastnum) of last file number"
+
+for x in `seq $newcount`
+do
+    mv -v `first_new_file` ~/pics/`printf '%04d' $(( $lastnum + $x ))`.jpg
+done
+

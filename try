@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# for long-running processes whose success you are interested in.  inspired by
+# someone on reddit.
+
+play_sound() { aplay -q $HOME/other/$1.wav; }
+
+$@ && play_sound squeak || play_sound scratch
+
