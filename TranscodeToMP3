@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+# TranscodeToMP3: recursively find all files in the current directory with the
+# specified extension (the only argument) and convert them to mp3, using
+# mplayer to decode them, changing the extension to .mp3 in the new files'
+# filenames and leaving the original files intact.
+
+extension="$1"
+
+mkfifo tmp.pipe
+find . -name "*$extension" | while read filename
+do
+    mp3_filename=`basename "$filename" "$extension"`.mp3
+    mplayer -noconsolecontrols -ao pcm:file=tmp.pipe "$filename" &
+    lame --preset standard tmp.pipe "$mp3_filename"
+done
+rm -f tmp.pipe
+
