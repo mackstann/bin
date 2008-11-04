@@ -9,12 +9,32 @@
 
 extension="$1"
 
-mkfifo tmp.pipe
-find . -name "*$extension" | while read filename
-do
-    mp3_filename=`basename "$filename" "$extension"`.mp3
-    mplayer -noconsolecontrols -ao pcm:file=tmp.pipe "$filename" &
-    lame --preset standard tmp.pipe "$mp3_filename"
-done
-rm -f tmp.pipe
+masterlist=`tempfile`
+part1=`tempfile`
+part2=`tempfile`
+
+find . -name "*$extension" | sort > "$masterlist"
+
+numfiles=`wc -l < "$masterlist"`
+
+head -n$(($numfiles / 2                )) "$masterlist" > "$part1"
+tail -n$(($numfiles / 2 + $numfiles % 2)) "$masterlist" > "$part2"
+
+transcode_files ()
+{
+    while read filename
+    do
+        mkfifo "$filename".pipe
+        mp3_filename=`basename "$filename" "$extension"`.mp3
+        echo "$filename -> $mp3_filename"
+        DoItEasy mplayer -really-quiet -noconsolecontrols -ao pcm:file="$filename".pipe "$filename" 2>/dev/null &
+        DoItEasy lame --quiet --preset extreme "$filename".pipe "$mp3_filename"
+        rm -f "$filename".pipe
+    done
+}
+
+transcode_files < "$part1" &
+transcode_files < "$part2"
+
+wait
 
