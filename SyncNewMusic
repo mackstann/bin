@@ -6,7 +6,7 @@ set -x
 mkdir -p "$HOME/tmp/music"
 chmod -R 755 "$HOME/tmp/music"
 rename 'y/A-Z/a-z/' "$HOME"/tmp/music/*
-\ls -1 "$HOME/tmp/music" | while read artist
+ls -1 "$HOME/tmp/music" | while read artist
 do
     artistdir="$HOME/tmp/music/$artist"
 
