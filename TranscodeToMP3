@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 # Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
 
@@ -8,33 +8,89 @@
 # filenames and leaving the original files intact.
 
 extension="$1"
+threads=2
 
-masterlist=`tempfile`
-part1=`tempfile`
-part2=`tempfile`
+#i=0
+#files=()
+#find . -name "*$extension" | sort | while read file
+#do
+#    files[$i]="$file"
+#    i=$(($i+1))
+#done
 
-find . -name "*$extension" | sort > "$masterlist"
+job_slots=()
+for i in `seq $threads`
+do
+    slot=/tmp/transcode.notify.$i
+    job_slots[$i]="$slot"
+    rm -f "$slot" || exit 1
+    touch "$slot" || exit 1
+done
 
-numfiles=`wc -l < "$masterlist"`
-
-head -n$(($numfiles / 2                )) "$masterlist" > "$part1"
-tail -n$(($numfiles / 2 + $numfiles % 2)) "$masterlist" > "$part2"
-
-transcode_files ()
+transcode_file()
 {
-    while read filename
+    filename="$1"
+    outbox="$2"
+    echo `date`" -  started: $filename"
+    mkfifo "$filename".pipe
+    mp3_filename=`basename "$filename" "$extension"`.mp3
+    DoItEasy mplayer -really-quiet -noconsolecontrols -ao pcm:file="$filename".pipe "$filename" 2>/dev/null &
+    DoItEasy lame --quiet --preset extreme "$filename".pipe "$mp3_filename"
+    rm -f "$filename".pipe
+    touch "$outbox"
+    echo `date`" - finished: $filename"
+}
+
+look_for_empty_job_slot()
+{
+    for slot in $job_slots
     do
-        mkfifo "$filename".pipe
-        mp3_filename=`basename "$filename" "$extension"`.mp3
-        echo "$filename -> $mp3_filename"
-        DoItEasy mplayer -really-quiet -noconsolecontrols -ao pcm:file="$filename".pipe "$filename" 2>/dev/null &
-        DoItEasy lame --quiet --preset extreme "$filename".pipe "$mp3_filename"
-        rm -f "$filename".pipe
+        if [ -f "$slot" ]
+        then
+            rm -f "$slot"
+            echo "$slot"
+            return
+        fi
     done
 }
 
-transcode_files < "$part1" &
-transcode_files < "$part2"
+# launch them all gradually
 
-wait
+find . -name "*$extension" | sort | while read file
+do
+    while true
+    do
+        slot=`look_for_empty_job_slot`
+        if [ -n "$slot" ]
+        then
+            transcode_file "$file" "$slot" &
+            break
+        else
+            sleep 0.5
+        fi
+    done
+done
+
+# then wait for the remaining jobs to finish
+
+while true
+do
+    stillrunning=
+
+    for slot in $job_slots
+    do
+        if [ ! -f "$slot" ]
+        then
+            stillrunning=1
+            break
+        fi
+    done
+
+    if [ -z "$stillrunning" ]
+    then
+        exit
+    else
+        sleep 0.5
+    fi
+done
 
