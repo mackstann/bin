@@ -11,5 +11,5 @@
 # due to inadequate word quoting behavior of bash, zsh is required for the
 # arguments to be properly passed through
 
-sudo nice -n 20 ionice -c3 sudo -u $USER $@
+exec sudo nice -n 20 ionice -c3 sudo -u $USER $@
 
