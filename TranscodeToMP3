@@ -10,6 +10,12 @@
 extension="$1"
 threads=2
 
+if [ "$extension" -eq ".mp3" ]
+then
+    echo "don't do that, it'll overwrite your files"
+    exit 1
+fi
+
 #i=0
 #files=()
 #find . -name "*$extension" | sort | while read file
@@ -18,79 +24,40 @@ threads=2
 #    i=$(($i+1))
 #done
 
-job_slots=()
-for i in `seq $threads`
-do
-    slot=/tmp/transcode.notify.$i
-    job_slots[$i]="$slot"
-    rm -f "$slot" || exit 1
-    touch "$slot" || exit 1
-done
+start=`date +%s`
+
+elapsed_time()
+{
+    now=`date +%s`
+    elapsed=$(($now - $start))
+    minutes=$(($elapsed / 60))
+    seconds=$(($elapsed % 60))
+    printf "%02d:%02d" $minutes $seconds
+}
 
 transcode_file()
 {
     filename="$1"
-    outbox="$2"
-    echo `date`" -  started: $filename"
     mkfifo "$filename".pipe
     mp3_filename=`basename "$filename" "$extension"`.mp3
     DoItEasy mplayer -really-quiet -noconsolecontrols -ao pcm:file="$filename".pipe "$filename" 2>/dev/null &
     DoItEasy lame --quiet --preset extreme "$filename".pipe "$mp3_filename"
     rm -f "$filename".pipe
-    touch "$outbox"
-    echo `date`" - finished: $filename"
-}
-
-look_for_empty_job_slot()
-{
-    for slot in $job_slots
-    do
-        if [ -f "$slot" ]
-        then
-            rm -f "$slot"
-            echo "$slot"
-            return
-        fi
-    done
+    echo T+`elapsed_time`" finished: $filename"
 }
 
 # launch them all gradually
 
+echo "launching $threads threads at a time..."
+
 find . -name "*$extension" | sort | while read file
 do
-    while true
+    while [ `jobs | wc -l` -ge $threads ]
     do
-        slot=`look_for_empty_job_slot`
-        if [ -n "$slot" ]
-        then
-            transcode_file "$file" "$slot" &
-            break
-        else
-            sleep 0.5
-        fi
+        sleep 0.2
     done
+    transcode_file "$file" &
 done
 
-# then wait for the remaining jobs to finish
-
-while true
-do
-    stillrunning=
-
-    for slot in $job_slots
-    do
-        if [ ! -f "$slot" ]
-        then
-            stillrunning=1
-            break
-        fi
-    done
-
-    if [ -z "$stillrunning" ]
-    then
-        exit
-    else
-        sleep 0.5
-    fi
-done
+wait
 
