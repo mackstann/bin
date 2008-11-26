@@ -8,16 +8,9 @@ DISPLAY=:0
 test -z "$1" || DISPLAY=$1
 export DISPLAY
 
-if test -z "$DBUS_SESSION_BUS_ADDRESS"
-then
-    eval `dbus-launch --sh-syntax --exit-with-session`
-    export DBUS_SESSION_BUS_ADDRESS
-    export DBUS_SESSION_BUS_PID
-fi
-
 ERRORLOG="$HOME/.my-x-errors-$DISPLAY"
 
-X -noreset "$DISPLAY" > "$ERRORLOG" 2>&1 &
+X -br -noreset "$DISPLAY" > "$ERRORLOG" 2>&1 &
 
 # try a bunch of times until X is there
 for try in `seq 10`
@@ -25,7 +18,7 @@ do
     if xdpyinfo >/dev/null 2>&1
     then
         exec >> "$ERRORLOG" 2>&1
-        sh $HOME/scripts/xstartup.sh
+        xstartup.sh
         exit 0
     else
         sleep 0.5
