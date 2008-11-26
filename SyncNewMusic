@@ -1,47 +1,52 @@
-#!/bin/sh
+#!/bin/zsh
 
 # Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
 
 set -x
-mkdir -p "$HOME/tmp/music"
-chmod -R 755 "$HOME/tmp/music"
-rename 'y/A-Z/a-z/' "$HOME"/tmp/music/*
-ls -1 "$HOME/tmp/music" | while read artist
+
+music="$HOME/tmp/music"
+finished="$HOME/music"
+
+mkdir -p "$music"
+
+find "$music" \
+    -not -iname '*.mp3' \
+    -not -iname incomplete \
+    -type f \
+    -exec rm -f {} \; || exit 1
+for i in "$music"/*; do rename 'y/A-Z/a-z/' "$i"; done
+for i in "$music"/*/*; do rename 'y/A-Z/a-z/' "$i"; done
+for i in "$music"/*/*/*; do rename 'y/A-Z/a-z/' "$i"; done
+
+for artistdir in "$music"/*
 do
-    artistdir="$HOME/tmp/music/$artist"
-
-    rename 'y/A-Z/a-z/' "$artistdir"/*
-
-    find "$artistdir" -type f -iname '*.mp3' | while read i
+    artist=`basename "$artistdir"`
+    for albumdir in "$music/$artist"/*
     do
-        chmod 644 "$i"
-        rename 'y/A-Z/a-z/' "$i"
+        album=`basename "$albumdir"`
+
+        test "$1" = "-i" && touch "$albumdir"/incomplete
+
+        dest="$finished/$artist/$album"
+        if [ -e "$dest" -a ! rmdir "$dest" 2>/dev/null ]
+        then
+            if [ `ls "$dest"` = 'incomplete' ]
+            then
+                rm "$dest"/incomplete || exit 1
+                rmdir "$dest" || exit 1
+            else
+                echo "$dest already exists!"
+                # this exit only exits the loop (not the entire script) if
+                # running under bash/dash..wtf?
+                exit 1
+            fi
+        fi
+
+        mkdir -p "`dirname \"$dest\"`"
+        mv -v "$albumdir" "$dest"
     done
-
-    find "$artistdir" -type f -not -name '*.mp3' |
-        while read i
-        do
-            echo "delete $i"
-            rm -f "$i"
-        done
-
-    if [ "$1" = "-i" ]
-    then
-        find "$artistdir" -mindepth 1 -maxdepth 1 -type d | while read albumdir
-        do
-            echo "incomplete -> YES"
-            touch "$albumdir"/incomplete
-        done
-    fi
-
-    mkdir -p "$HOME/music/$artist"
-    find "$artistdir" -type d -mindepth 1 -maxdepth 1 |
-        while read albumdir
-        do
-            mv "$albumdir" "$HOME/music/$artist/"
-            album=`basename "$albumdir"`
-            python $HOME/dev/bin/Id3 "$HOME/music/$artist/$album"
-        done
     rmdir "$artistdir"
 done
+
+Id3 "$finished" || exit 1
 
