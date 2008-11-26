@@ -8,7 +8,7 @@ mount | grep -q ' on /mnt type ' || exit 1
 
 sudo mkdir -p /mnt/sysbackup || exit 1
 
-DoItEasy rsync \
+DoItEasy sudo rsync \
     -zva \
     --delete \
     --delete-excluded \
