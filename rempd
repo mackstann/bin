@@ -23,6 +23,23 @@ kill_with_prejudice()
     done
 }
 
+launch()
+{
+    mpdscribble &
+    mpd $HOME/.mpdconf
+    mpc random 1 >/dev/null
+    mpc repeat 1 >/dev/null
+    python $HOME/dev/mpd-weighted-playlist/mpd_weighted_playlist.py < $HOME/.mpd-weights >/dev/null
+}
+
+update()
+{
+    mpc update >/dev/null
+    while mpc | grep -q 'Updating DB'
+    do sleep 0.1
+    done
+}
+
 stop()
 {
     kill_with_prejudice mpd
@@ -31,19 +48,11 @@ stop()
 
 start()
 {
-    mpdscribble &
-    mpd $HOME/.mpdconf
-    mpc update >/dev/null
-    while mpc | grep -q 'Updating DB'
-    do sleep 0.1
-    done
-    mpc random 1 >/dev/null
-    mpc repeat 1 >/dev/null
-    python $HOME/dev/mpd-weighted-playlist/mine.py >/dev/null
+    launch
     mpc play
 }
 
-restart() { stop; start; }
+restart() { update; stop; start; }
 
 if [ -n "$1" ]
 then
