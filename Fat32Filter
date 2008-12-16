@@ -1,0 +1,27 @@
+#!/usr/bin/tcc -run
+#include <stdio.h>
+
+int main(void)
+{
+    for(;;)
+    {
+        int c = getc(stdin);
+        if(c == EOF)
+            return 0;
+        switch(c)
+        {
+            case ':':
+            case ';':
+            case '*':
+            case '?':
+            case '"':
+            case '<':
+            case '>':
+            case '|':
+                putc('_', stdout);
+                continue;
+        }
+        putc(c, stdout);
+    }
+}
+
