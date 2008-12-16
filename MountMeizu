@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
+
+Mount 'usb-Meizu_MiniPlayer*0:0' /media/meizu 0000
+
