@@ -16,6 +16,6 @@ ax repeatinterval 12
 ax repeatdelay 210
 unclutter -idle 1.5 -jitter 1 &
 if test -z "$DBUS_SESSION_BUS_ADDRESS"; then
-    eval 'dbus-launch --sh-syntax --exit-with-session'
+    eval `dbus-launch --sh-syntax --exit-with-session`
 fi
 
