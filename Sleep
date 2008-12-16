@@ -2,12 +2,10 @@
 
 # Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
 
-rempd stop &
 Umount /mnt &
 aumix -v 0 &
 
 wait
-sleep 0.5
 
 sudo s2disk # go to sleep
 
@@ -26,7 +24,6 @@ sudo s2disk # go to sleep
 
     kill `ps auxww | grep "$an_mp3" | grep mplayer | awk '{print $2}'`
     aumix -v 80
-    rempd start
 ) &
 
 ( # video
