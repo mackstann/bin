@@ -1,0 +1,22 @@
+#!/bin/sh
+
+export AWS_ACCESS_KEY_ID=`cat $HOME/text/s3-access-key-id`        
+export AWS_SECRET_ACCESS_KEY=`cat $HOME/text/s3-secret-access-key`  
+BUCKET=`cat $HOME/text/s3-bucket-name`
+
+echo '********** cleanup **********'
+duplicity cleanup -v5 --force s3+http://"$BUCKET"
+
+echo '********** backup **********'
+duplicity -v5 $HOME s3+http://"$BUCKET" \
+    --gpg-options='--compress-algo=bzip2 --bzip2-compress-level=9' \
+    --exclude "$HOME/transmission" \
+    --exclude "$HOME/tmp" \
+    --exclude "$HOME/music" \
+    --exclude "$HOME/downloads" \
+    --exclude "$HOME/.covers" \
+    --exclude "$HOME/.thumbnails" \
+    --exclude "$HOME/.mozilla/*/*/Cache/*" \
+    --exclude "**/*.dll" \
+    --exclude "$HOME/.wine/drive_c/windows/temp" \
+    --exclude "$HOME/backup*"
