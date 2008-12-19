@@ -1,0 +1,19 @@
+#!/usr/bin/perl -w
+
+use Net::Amazon::S3;
+
+my $s3 = Net::Amazon::S3->new({
+    aws_access_key_id => $ARGV[1],
+    aws_secret_access_key => $ARGV[2],
+    retry => 1
+});
+
+
+$s3->add_bucket({bucket => $ARGV[0]})
+    or die "failed: " . $s3->errstr;
+
+my $response = $s3->buckets;
+foreach my $bucket ( @{ $response->{buckets} } ) {
+    print "You have a bucket: " . $bucket->bucket . "\n";
+}
+
