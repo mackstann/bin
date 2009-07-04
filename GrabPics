@@ -15,7 +15,7 @@ sorted_jpegs_in_dir () { find "$1" -mindepth 1 -maxdepth 1 -iname '*.jpg' | sort
 sorted_new_files () { sorted_jpegs_in_dir .; }
 first_new_file () { sorted_new_files | head -n1; }
 
-lastnum=`basename $(sorted_jpegs_in_dir ~/pics | tail -n1) .jpg | sed -e 's/^0*//'`
+lastnum=`basename $(sorted_jpegs_in_dir ~/Pictures/Photos | tail -n1) .jpg | sed -e 's/^0*//'`
 newcount=`sorted_new_files | wc -l`
 
 test "$newcount" -gt 0 -a "$newcount" -lt 100000 || die "weird number ($newcount) of new files"
@@ -23,6 +23,6 @@ test "$lastnum" -gt 0 -a "$lastnum" -lt 100000 || die "weird number ($lastnum) o
 
 for x in `seq $newcount`
 do
-    mv -v `first_new_file` ~/pics/`printf '%04d' $(( $lastnum + $x ))`.jpg
+    mv -v `first_new_file` ~/Pictures/Photos/`printf '%04d' $(( $lastnum + $x ))`.jpg
 done
 
