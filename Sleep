@@ -2,6 +2,8 @@
 
 # Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
 
+set -x
+
 Umount /mnt &
 aumix -v 0 &
 
@@ -16,7 +18,7 @@ sudo s2disk # go to sleep
 ( # sound
     # for some reason mplayer does something magic that brings the sound back
     # device when it sometimes breaks after a suspend
-    an_mp3=`find $HOME/music -type f -name '*.mp3' | head -n1`
+    an_mp3=`find $HOME/Music -type f -name '*.mp3' | head -n1`
     mplayer -noconsolecontrols "$an_mp3" >/dev/null 2>&1 &
 
     while ! ps auxww | grep "$an_mp3" | grep -q mplayer
@@ -24,15 +26,21 @@ sudo s2disk # go to sleep
 
     kill `ps auxww | grep "$an_mp3" | grep mplayer | awk '{print $2}'`
     aumix -v 80
+    echo "sound done"
 ) &
 
 ( # video
     sudo vbetool vbemode set 3
     sleep 1
     FixX
+    echo "video done"
 ) &
 
-MountSeagate >/dev/null 2>&1 &
+(
+    echo "mounting seagate"
+    MountSeagate >/dev/null 2>&1
+    echo "done mounting seagate"
+) &
 
 wait
 
