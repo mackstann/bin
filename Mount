@@ -31,7 +31,7 @@ do
     case $num_matching_disks in
         0)
             printf "."
-            sleep 0.05
+            sleep 0.3
             continue
             ;;
         1)
