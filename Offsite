@@ -10,13 +10,13 @@ BUCKET=`cat $HOME/text/s3-bucket-name`
 
 for dir in cleanups dev images irclogs Maildir other phonepics pics scripts sw text
 do
-    duplicity cleanup -v5 --force      s3+http://"$BUCKET"/"$dir"
-    duplicity         -v5 "$HOME/$dir" s3+http://"$BUCKET"/"$dir" \
+    duplicity cleanup --asynchronous-upload --allow-source-mismatch -v5 --force      s3+http://"$BUCKET"/"$dir"
+    duplicity         --asynchronous-upload --allow-source-mismatch -v5 "$HOME/$dir" s3+http://"$BUCKET"/"$dir" \
         --gpg-options='--compress-algo=bzip2 --bzip2-compress-level=9'
 done
 
-duplicity cleanup -v5 --force s3+http://"$BUCKET"/dotfiles
-duplicity         -v5 "$HOME" s3+http://"$BUCKET"/dotfiles \
+duplicity cleanup --asynchronous-upload --allow-source-mismatch -v5 --force s3+http://"$BUCKET"/dotfiles
+duplicity         --asynchronous-upload --allow-source-mismatch -v5 "$HOME" s3+http://"$BUCKET"/dotfiles \
     --gpg-options='--compress-algo=bzip2 --bzip2-compress-level=9' \
     --exclude "$HOME/.mozilla/*/*/Cache/*" \
     --exclude "**/*.dll" \
