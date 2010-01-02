@@ -8,9 +8,9 @@
 # filenames and leaving the original files intact.
 
 extension="$1"
-threads=2
+threads=`cat /proc/cpuinfo | grep ^processor | wc -l`
 
-if [ "$extension" -eq ".mp3" ]
+if [ "$extension" = ".mp3" ]
 then
     echo "don't do that, it'll overwrite your files"
     exit 1
@@ -38,11 +38,21 @@ elapsed_time()
 transcode_file()
 {
     filename="$1"
-    mkfifo "$filename".pipe
-    mp3_filename=`basename "$filename" "$extension"`.mp3
-    DoItEasy mplayer -really-quiet -noconsolecontrols -ao pcm:file="$filename".pipe "$filename" 2>/dev/null &
-    DoItEasy lame --quiet --preset extreme "$filename".pipe "$mp3_filename"
-    rm -f "$filename".pipe
+    echo T+`elapsed_time`" started: $filename"
+
+    mp3_filename="$(dirname "$filename")/$(basename "$filename" "$extension").mp3"
+    pipe_filename="$(dirname "$filename")/$(basename "$filename" "$extension").pipe"
+
+    # sanitize because mplayer interprets certain characters as having special meaning
+    pipe_filename=`echo "$pipe_filename" | sed 's,[^a-zA-Z0-9_./-],_,g'`
+
+    mkfifo "$pipe_filename"
+
+    nice ionice -c3 mplayer -really-quiet -noconsolecontrols -ao pcm:file="$pipe_filename" "$filename" 2>/dev/null &
+    nice ionice -c3 lame --quiet --preset extreme "$pipe_filename" "$mp3_filename"
+
+    rm -f "$pipe_filename"
+
     echo T+`elapsed_time`" finished: $filename"
 }
 
@@ -52,7 +62,7 @@ echo "launching $threads threads at a time..."
 
 find . -name "*$extension" | sort | while read file
 do
-    while [ `jobs | wc -l` -ge $threads ]
+    while [ $#jobstates -ge $threads ]
     do
         sleep 0.2
     done
