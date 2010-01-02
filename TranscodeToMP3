@@ -44,7 +44,7 @@ transcode_file()
     pipe_filename="$(dirname "$filename")/$(basename "$filename" "$extension").pipe"
 
     # sanitize because mplayer interprets certain characters as having special meaning
-    pipe_filename=`echo "$pipe_filename" | sed 's,[^a-zA-Z0-9_./-],_,g'`
+    pipe_filename=`dirname "$pipe_filename"`/`basename "$pipe_filename" | sed 's,[^a-zA-Z0-9_./-],_,g'`
 
     mkfifo "$pipe_filename"
 
