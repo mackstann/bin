@@ -1,11 +1,2 @@
 #!/bin/sh
-
-MountPhone
-num=`find /media/phone/mobile/picture/ -name '*.jpg' | wc -l`
-if [ "$num" != 0 ]
-then
-    mv -v /media/phone/mobile/picture/*.jpg ~/phonepics/
-else
-    echo "no pics"
-fi
-Umount /media/phone
+rsync -vrP --size-only /media/3039-3366/DCIM/Camera/ $HOME/Pictures/Photos/nexusone/
