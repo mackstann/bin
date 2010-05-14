@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+sum=0
+
+dpkg -L "$1" | while read i
+do
+    if [ -f "$i" ]
+    then
+        sum=$(($sum + `stat --format='%s' "$i"`))
+    fi
+done
+
+echo $sum
