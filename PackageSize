@@ -8,8 +8,12 @@ stdout, stderr = proc.communicate()
 total = 0
 
 for filename in filter(None, stdout.split('\n')):
-    st = os.stat(filename)
-    if stat.S_ISREG(st[stat.ST_MODE]):
+    try:
+        st = os.stat(filename)
+    except OSError: # broken symlink
+        continue
+
+    if stat.S_ISREG(st[stat.ST_MODE]) and not stat.S_ISLNK(st[stat.ST_MODE]):
         total += st[stat.ST_SIZE]
 
 print total
