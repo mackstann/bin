@@ -1,13 +1,15 @@
-#!/bin/zsh
+#!/usr/bin/env python
 
-sum=0
+import os, sys, subprocess, stat
 
-dpkg -L "$1" | while read i
-do
-    if [ -f "$i" ]
-    then
-        sum=$(($sum + `stat --format='%s' "$i"`))
-    fi
-done
+proc = subprocess.Popen(['dpkg', '-L', sys.argv[1]], stdout=subprocess.PIPE)
+stdout, stderr = proc.communicate()
 
-echo $sum
+total = 0
+
+for filename in filter(None, stdout.split('\n')):
+    st = os.stat(filename)
+    if stat.S_ISREG(st[stat.ST_MODE]):
+        total += st[stat.ST_SIZE]
+
+print total
