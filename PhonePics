@@ -1,2 +1,2 @@
 #!/bin/sh
-rsync -vrP --size-only /media/3039-3366/DCIM/Camera/ $HOME/Pictures/Photos/nexusone/
+rsync -vrtP /media/3039-3366/DCIM/Camera/ $HOME/Pictures/Photos/nexusone/
