@@ -1,13 +1,13 @@
-#!/bin/sh
+#!/bin/sh -e
 
 # Written by Nick Welch <nick@incise.org>.  Author disclaims copyright.
 
-mkdir -p /tmp/grabpics &&
-cd /tmp/grabpics && \
-sudo rm -f * && \
-sudo gphoto2 --filename '%:' -P && \
-sudo gphoto2 --delete-all-files --folder /store_00010001/DCIM/100CANON && \
-sudo chown death:death img_*.jpg && \
+mkdir -p /tmp/grabpics
+cd /tmp/grabpics
+sudo rm -f *
+sudo gphoto2 --filename '%:' -P
+sudo gphoto2 --delete-all-files --folder /store_00010001/DCIM/100CANON || true
+sudo chown $USER:$USER img_*.jpg
 chmod 600 img_*.jpg
 
 die () { echo "$1"; exit 1; }
