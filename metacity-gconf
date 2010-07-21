@@ -1,48 +1,57 @@
 #!/bin/sh
 
-setting()
-{
-    gconftool-2 --type $2 --set /apps/metacity/$1 "$3"
-}
+gconftool-2 --type string --set /apps/metacity/general/theme                    "nothing"
+gconftool-2 --type string --set /apps/metacity/general/mouse_button_modifier    "<Alt>"
+gconftool-2 --type string --set /apps/metacity/general/focus_mode               mouse
+gconftool-2 --type bool   --set /apps/metacity/general/raise_on_click           false
+gconftool-2 --type int    --set /apps/metacity/general/num_workspaces           9
+gconftool-2 --type bool   --set /apps/metacity/general/compositing_manager      true
+gconftool-2 --type bool   --set /apps/metacity/general/resize_with_right_button true
 
-setting general/theme                    string "nothing"
-setting general/mouse_button_modifier    string "<Alt>"
-setting general/focus_mode               string mouse
-setting general/raise_on_click           bool   false
-setting general/num_workspaces           int    9
-setting general/compositing_manager      bool   true
-setting general/resize_with_right_button bool   true
+gconftool-2 --type string --set /apps/metacity/window_keybindings/toggle_maximized "<Super>f"
+gconftool-2 --type string --set /apps/metacity/window_keybindings/close            "<Ctrl><Alt>w"
 
-setting window_keybindings/toggle_maximized string "<Super>f"
-setting window_keybindings/close            string "<Ctrl><Alt>w"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_1 "<Ctrl><Alt>u"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_2 "<Ctrl><Alt>i"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_3 "<Ctrl><Alt>o"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_4 "<Ctrl><Alt>j"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_5 "<Ctrl><Alt>k"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_6 "<Ctrl><Alt>l"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_7 "<Ctrl><Alt>m"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_8 "<Ctrl><Alt>comma"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/switch_to_workspace_9 "<Ctrl><Alt>period"
 
-setting global_keybindings/switch_to_workspace_1 string "<Ctrl><Alt>u"
-setting global_keybindings/switch_to_workspace_2 string "<Ctrl><Alt>i"
-setting global_keybindings/switch_to_workspace_3 string "<Ctrl><Alt>o"
-setting global_keybindings/switch_to_workspace_4 string "<Ctrl><Alt>j"
-setting global_keybindings/switch_to_workspace_5 string "<Ctrl><Alt>k"
-setting global_keybindings/switch_to_workspace_6 string "<Ctrl><Alt>l"
-setting global_keybindings/switch_to_workspace_7 string "<Ctrl><Alt>m"
-setting global_keybindings/switch_to_workspace_8 string "<Ctrl><Alt>comma"
-setting global_keybindings/switch_to_workspace_9 string "<Ctrl><Alt>period"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_1 "<Ctrl><Alt>x"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_2 "<Super>z"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_3 "<Super>x"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_4 "<Super>c"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_5 "<Super>v"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_6 "<Super>b"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_7 "<Super>h"
+gconftool-2 --type string --set /apps/metacity/global_keybindings/run_command_8 "<Super>l"
 
-setting global_keybindings/run_command_1 string "<Ctrl><Alt>x"
-setting global_keybindings/run_command_2 string "<Super>z"
-setting global_keybindings/run_command_3 string "<Super>x"
-setting global_keybindings/run_command_4 string "<Super>c"
-setting global_keybindings/run_command_5 string "<Super>v"
-setting global_keybindings/run_command_6 string "<Super>b"
-setting global_keybindings/run_command_7 string "<Super>h"
-setting global_keybindings/run_command_8 string "<Super>l"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_1 "$HOME/sw/bin/urxvt"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_2 "$HOME/dev/bin/mpris-remote prev"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_3 "$HOME/dev/bin/mpris-remote stop"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_4 "$HOME/dev/bin/mpris-remote play"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_5 "$HOME/dev/bin/mpris-remote pause"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_6 "$HOME/dev/bin/mpris-remote next"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_7 "wmctrl -r :ACTIVE: -e 0,0,0,1024,1152"
+gconftool-2 --type string --set /apps/metacity/keybinding_commands/command_8 "wmctrl -r :ACTIVE: -e 0,1024,0,1024,1152"
 
-setting keybinding_commands/command_1 string "/home/death/sw/bin/urxvt"
-setting keybinding_commands/command_2 string "/home/death/dev/bin/mpris-remote prev"
-setting keybinding_commands/command_3 string "/home/death/dev/bin/mpris-remote stop"
-setting keybinding_commands/command_4 string "/home/death/dev/bin/mpris-remote play"
-setting keybinding_commands/command_5 string "/home/death/dev/bin/mpris-remote pause"
-setting keybinding_commands/command_6 string "/home/death/dev/bin/mpris-remote next"
-setting keybinding_commands/command_7 string "wmctrl -r :ACTIVE: -e 0,0,0,1024,1152"
-setting keybinding_commands/command_8 string "wmctrl -r :ACTIVE: -e 0,1024,0,1024,1152"
+# no desktop icons
+gconftool-2 --type bool   --set /apps/nautilus/preferences/show_desktop false
 
+# fast key repeat
+gconftool-2 --type int    --set /desktop/gnome/peripherals/keyboard/delay 220
+gconftool-2 --type int    --set /desktop/gnome/peripherals/keyboard/rate  90
 
-
+# don't lock the screen
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock_on_suspend                  false
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock_on_hibernate                false
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock_on_blank_screen             false
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock_on_use_screensaver_settings false
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock/gnome_keyring_hibernate     false
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock/gnome_keyring_suspend       false
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock/hibernate                   false
+gconftool-2 --type bool   --set /apps/gnome-power-manager/lock/suspend                     false
