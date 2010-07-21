@@ -1,0 +1,2 @@
+#!/bin/sh
+while nice ionice -c3 fetchmail -kUa -m maildrop; do :; done

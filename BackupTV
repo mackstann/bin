@@ -1,0 +1,10 @@
+#!/bin/bash
+sudo rsync -vzP -rlptD --delete --delete-excluded \
+    --exclude nasty \
+    --exclude '/mnt*' \
+    --exclude '/media*' \
+    --exclude '/proc*' \
+    --exclude '/sys*' \
+    --exclude '/dev*' \
+    --exclude '/tmp*' \
+    root@tv:/ $HOME/nasty/Backups/tv/
