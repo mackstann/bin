@@ -1,0 +1,11 @@
+#!/bin/sh
+
+ssh nick@incise.org "
+    setopt null_glob;
+    rm -f portlandthings-db-dump-new*;
+    (pg_dump --verbose portlandthings -U portlandthings -h localhost > portlandthings-db-dump-new &&
+    echo 'Compressing...' &&
+    xz --verbose portlandthings-db-dump-new &&
+    mv portlandthings-db-dump-new.xz portlandthings-db-dump.xz) || rm -f portlandthings-db-dump-new*
+"
+

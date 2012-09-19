@@ -1,0 +1,12 @@
+#!/bin/sh
+
+sudo rsync -Pvza \
+    --compress-level=9 \
+    --exclude=proc \
+    --exclude=sys \
+    --exclude=dev \
+    --exclude=tmp \
+    --exclude=/home/nick/Music \
+    --delete \
+    root@incise.org:/ \
+    $HOME/big/incise.org/
