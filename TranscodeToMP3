@@ -7,67 +7,16 @@
 # mplayer to decode them, changing the extension to .mp3 in the new files'
 # filenames and leaving the original files intact.
 
-extension="$1"
-threads=`cat /proc/cpuinfo | grep ^processor | wc -l`
+glob="$1"
+threads=$(( `grep -c ^processor /proc/cpuinfo` * 2 ))
 
-if [ "$extension" = ".mp3" ]
+if [ "$glob" = "*.mp3" ]
 then
     echo "don't do that, it'll overwrite your files"
     exit 1
 fi
 
-#i=0
-#files=()
-#find . -name "*$extension" | sort | while read file
-#do
-#    files[$i]="$file"
-#    i=$(($i+1))
-#done
-
-start=`date +%s`
-
-elapsed_time()
-{
-    now=`date +%s`
-    elapsed=$(($now - $start))
-    minutes=$(($elapsed / 60))
-    seconds=$(($elapsed % 60))
-    printf "%02d:%02d" $minutes $seconds
-}
-
-transcode_file()
-{
-    filename="$1"
-    echo T+`elapsed_time`" started: $filename"
-
-    mp3_filename="$(dirname "$filename")/$(basename "$filename" "$extension").mp3"
-    pipe_filename="$(dirname "$filename")/$(basename "$filename" "$extension").pipe"
-
-    # sanitize because mplayer interprets certain characters as having special meaning
-    pipe_filename=`dirname "$pipe_filename"`/`basename "$pipe_filename" | sed 's,[^a-zA-Z0-9_./-],_,g'`
-
-    mkfifo "$pipe_filename"
-
-    nice ionice -c3 mplayer -really-quiet -noconsolecontrols -ao pcm:file="$pipe_filename" "$filename" 2>/dev/null &
-    nice ionice -c3 lame --quiet --preset extreme "$pipe_filename" "$mp3_filename"
-
-    rm -f "$pipe_filename"
-
-    echo T+`elapsed_time`" finished: $filename"
-}
-
-# launch them all gradually
-
 echo "launching $threads threads at a time..."
 
-find . -name "*$extension" | sort | while read file
-do
-    while [ $#jobstates -ge $threads ]
-    do
-        sleep 0.2
-    done
-    transcode_file "$file" &
-done
-
-wait
+find . -name "$glob" -type f -print0 | sort -z | xargs -0 -n1 -P$threads TranscodeFile
 
