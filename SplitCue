@@ -1,0 +1,7 @@
+#!/bin/sh
+
+audio="$1"
+cue="$2"
+
+shnsplit -o flac -f "$cue" "$audio"
+cuetag "$cue" split-track*
