@@ -1,0 +1,33 @@
+#!/bin/zsh
+
+filename="$(pwd)/$1"
+
+extension=`echo "$filename" | sed 's/.*\././'`
+
+if [ -z "$extension" -o "$extension" = "." -o "$filename" = "$extension" ]
+then
+    echo "can't figure out the file extension for: $filename"
+    exit 1
+fi
+
+mp3_filename="$(pwd)/$(dirname "$filename")/$(basename "$filename" "$extension").mp3"
+
+if [ -f "$mp3_filename" ]
+then
+    echo "already done:  $filename"
+    exit 0
+fi
+
+echo "started:       $filename"
+
+pcmtmp=`mktemp`
+mp3tmp=`mktemp`
+
+cd /tmp
+nice ionice -c3 mplayer -msglevel all=3 -noconsolecontrols -ao pcm:file="$pcmtmp" "$filename"
+nice ionice -c3 lame --quiet --preset extreme "$pcmtmp" "$mp3tmp"
+
+mv "$mp3tmp" "$mp3_filename"
+rm -f "$pcmtmp"
+
+echo "finished:      $filename"
